@@ -21,7 +21,7 @@ class Button extends Field
 
     public $showOnCreation = false;
 
-    public $component = 'nova-button';
+    public $component = '';
 
     public $event = "NovaButton\Events\ButtonClick";
 
@@ -69,7 +69,7 @@ class Button extends Field
     {
         parent::resolve($resource, $attribute);
 
-        $this->classes[] = 'nova-button-'.strtolower(class_basename($resource));
+        $this->classes[] = 'nova-button-' . strtolower(class_basename($resource));
         $this->classes[] = Arr::get($this->config, "styles.{$this->style}");
         $this->loadingClasses = Arr::get($this->config, "styles.{$this->loadingStyle}");
         $this->successClasses = Arr::get($this->config, "styles.{$this->successStyle}");
@@ -216,6 +216,13 @@ class Button extends Field
         return $this;
     }
 
+    public function setComponent($component)
+    {
+        $this->component = $component;
+
+        return $this;
+    }
+
     public function index($namespace)
     {
         $this->route('index', [
@@ -239,6 +246,17 @@ class Button extends Field
     {
         $this->route('create', [
             'resourceName' => $this->normalizeResourceName($namespace),
+        ]);
+
+        return $this;
+    }
+
+    public function customRoute($namespace, $route, $id)
+    {
+
+        $this->route($route, [
+            'resourceName' => $this->normalizeResourceName($namespace),
+            'resourceId'   => $id,
         ]);
 
         return $this;
@@ -308,7 +326,7 @@ class Button extends Field
      */
     public function withFilters(array $filters)
     {
-        $key = $this->route['params']['resourceName'].'_filter';
+        $key = $this->route['params']['resourceName'] . '_filter';
 
         $this->route['query'][$key] = base64_encode(json_encode(collect($filters)->map(function ($value, $key) {
             return [
